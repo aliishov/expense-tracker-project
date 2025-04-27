@@ -25,19 +25,48 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "is_authenticated")
     private boolean isAuthenticated;
+
+    @Column(name = "is_Enabled")
     private boolean isEnabled;
+
+    @Column(name = "is_account_non_expired")
     private boolean isAccountNonExpired;
+
+    @Column(name = "is_credentials_non_expired")
     private boolean isCredentialsNonExpired;
+
+    @Column(name = "is_account_non_locked")
     private boolean isAccountNonLocked;
 
     @Override

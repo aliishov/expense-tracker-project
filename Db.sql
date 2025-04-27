@@ -14,3 +14,5 @@ CREATE TABLE IF NOT EXISTS users (
     is_credentials_non_expired BOOLEAN NOT NULL DEFAULT TRUE,
     is_account_non_locked BOOLEAN NOT NULL DEFAULT TRUE
 );
+
+ALTER TABLE users ADD COLUMN role VARCHAR(100) NOT NULL;
