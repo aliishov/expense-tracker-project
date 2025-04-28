@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -111,5 +113,28 @@ public class AuthService {
         LOGGER.info(MY_LOG_MARKER, "Forgot password email sent to: {}", user.getEmail());
 
         return ResponseEntity.ok(new MessageResponseDto("Forgot password email sent successfully"));
+    }
+
+    public ResponseEntity<MessageResponseDto> resetPassword(@Valid ResetPasswordRequest request) {
+        LOGGER.info(MY_LOG_MARKER, "Resetting password");
+
+        if (!request.newPassword().equals(request.passwordRepeated())) {
+            LOGGER.error(MY_LOG_MARKER, "New password and repeated password do not match");
+            return ResponseEntity.badRequest().body(new MessageResponseDto("New password and repeated password do not match"));
+        }
+
+        UUID userId;
+        try {
+            userId = tokenService.validateToken(request.token());
+        } catch (IllegalArgumentException e) {
+            LOGGER.error(MY_LOG_MARKER, "Invalid token provided", e);
+            return ResponseEntity.badRequest().body(new MessageResponseDto("Invalid token provided"));
+        }
+
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        return ResponseEntity.ok(new MessageResponseDto("Password reset successfully"));
     }
 }
