@@ -7,6 +7,7 @@ import com.example.expensetracker.dtos.authDtos.RegisterRequestDto;
 import com.example.expensetracker.models.Role;
 import com.example.expensetracker.models.User;
 import com.example.expensetracker.repositories.UserRepository;
+import io.jsonwebtoken.Jwts;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -14,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     private final static Marker MY_LOG_MARKER = MarkerFactory.getMarker("MY_LOGGER");
     private final static Logger LOGGER = LoggerFactory.getLogger("MY_LOGGER");
@@ -56,5 +62,23 @@ public class AuthService {
     }
 
     public ResponseEntity<LoginResponseDto> login(@Valid LoginRequestDto requestDto) {
+        LOGGER.info(MY_LOG_MARKER, "Login requested: {}", requestDto.getEmail());
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    requestDto.getEmail(),
+                    requestDto.getPassword()
+                )
+        );
+
+        var user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        var accessToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+
+        LOGGER.info(MY_LOG_MARKER, "User with Email: {} successfully login", user.getEmail());
+
+        return ResponseEntity.ok(new LoginResponseDto(accessToken, refreshToken));
     }
 }
