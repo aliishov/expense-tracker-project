@@ -179,4 +179,23 @@ public class AuthService {
         LOGGER.info(MY_LOG_MARKER, "Confirmation email sent to: {}", user.getEmail());
         return ResponseEntity.ok(new MessageResponseDto("Confirmation email sent successfully"));
     }
+
+    public ResponseEntity<LoginResponseDto> refreshToken(@Valid RefreshTokenRequest request) {
+        LOGGER.info(MY_LOG_MARKER, "Refreshing token");
+
+        String email = jwtService.extractUsername(request.refreshToken());
+        if (email == null) {
+            LOGGER.error(MY_LOG_MARKER, "Invalid refresh token provided");
+            return ResponseEntity.badRequest().body(new LoginResponseDto(null, null));
+        }
+
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        String newAccessToken = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        LOGGER.info(MY_LOG_MARKER, "Token refreshed successfully for user with Email: {}", user.getEmail());
+        return ResponseEntity.ok(new LoginResponseDto(newAccessToken, newRefreshToken));
+    }
 }

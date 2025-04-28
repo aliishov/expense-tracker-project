@@ -48,4 +48,9 @@ public class AuthController {
     public ResponseEntity<MessageResponseDto> resendConfirmation(@RequestBody @Valid ResendConfirmationRequest request) {
         return authService.resendConfirmation(request);
     }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<LoginResponseDto> refreshToken(@RequestBody @Valid RefreshTokenRequest request) {
+        return authService.refreshToken(request);
+    }
 }
