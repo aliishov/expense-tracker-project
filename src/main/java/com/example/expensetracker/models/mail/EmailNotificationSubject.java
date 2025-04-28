@@ -1,4 +1,4 @@
-package com.example.expensetracker.models;
+package com.example.expensetracker.models.mail;
 
 public enum EmailNotificationSubject {
     ACCOUNT_CREATION_NOTIFICATION,

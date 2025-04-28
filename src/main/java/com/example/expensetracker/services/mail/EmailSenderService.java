@@ -1,6 +1,6 @@
 package com.example.expensetracker.services.mail;
 
-import com.example.expensetracker.models.EmailNotificationSubject;
+import com.example.expensetracker.models.mail.EmailNotificationSubject;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.constraints.NotNull;

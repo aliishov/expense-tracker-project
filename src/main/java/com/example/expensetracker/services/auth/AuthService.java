@@ -4,10 +4,12 @@ import com.example.expensetracker.dtos.authDtos.LoginRequestDto;
 import com.example.expensetracker.dtos.authDtos.LoginResponseDto;
 import com.example.expensetracker.dtos.authDtos.MessageResponseDto;
 import com.example.expensetracker.dtos.authDtos.RegisterRequestDto;
-import com.example.expensetracker.models.Role;
-import com.example.expensetracker.models.User;
+import com.example.expensetracker.models.mail.EmailNotificationSubject;
+import com.example.expensetracker.models.user.Role;
+import com.example.expensetracker.models.user.TokenType;
+import com.example.expensetracker.models.user.User;
 import com.example.expensetracker.repositories.UserRepository;
-import io.jsonwebtoken.Jwts;
+import com.example.expensetracker.services.mail.EmailSenderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final EmailSenderService emailSenderService;
 
     private final static Marker MY_LOG_MARKER = MarkerFactory.getMarker("MY_LOGGER");
     private final static Logger LOGGER = LoggerFactory.getLogger("MY_LOGGER");
@@ -56,6 +60,15 @@ public class AuthService {
                 .build();
 
         userRepository.save(newUser);
+
+        String token = tokenService.generateToken(newUser.getId(), TokenType.EMAIL_CONFIRMATION_TOKEN);
+        String confirmationLink = "http://localhost:8010/api/v1/auth/email/confirm?token=" + token;
+
+        Map<String, String> placeholders = Map.of(
+                "confirmation_link", confirmationLink
+        );
+
+        emailSenderService.sendEmail(newUser.getEmail(), EmailNotificationSubject.EMAIL_CONFIRMATION_NOTIFICATION, placeholders);
 
         LOGGER.info(MY_LOG_MARKER, "User with Email: {} registered successfully", requestDto.getEmail());
         return ResponseEntity.ok(new MessageResponseDto("User registered successfully"));

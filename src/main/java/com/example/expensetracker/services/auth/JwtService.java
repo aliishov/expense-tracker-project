@@ -1,6 +1,6 @@
 package com.example.expensetracker.services.auth;
 
-import com.example.expensetracker.models.User;
+import com.example.expensetracker.models.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
