@@ -55,7 +55,7 @@ public class User implements UserDetails {
     private LocalDateTime deletedAt;
 
     @Column(name = "is_authenticated")
-    private boolean isAuthenticated;
+    private Boolean isAuthenticated;
 
     @Column(name = "is_Enabled")
     private boolean isEnabled;

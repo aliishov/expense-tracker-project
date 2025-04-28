@@ -1,8 +1,10 @@
 package com.example.expensetracker.controllers;
 
+import com.example.expensetracker.dtos.authDtos.LoginRequestDto;
+import com.example.expensetracker.dtos.authDtos.LoginResponseDto;
 import com.example.expensetracker.dtos.authDtos.MessageResponseDto;
 import com.example.expensetracker.dtos.authDtos.RegisterRequestDto;
-import com.example.expensetracker.services.UserService;
+import com.example.expensetracker.services.auth.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
         description = "Manage Authentication & Authorization in Project")
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<MessageResponseDto> register(@Valid @RequestBody RegisterRequestDto requestDto) {
-        return userService.register(requestDto);
+        return authService.register(requestDto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
+        return authService.login(requestDto);
     }
 }

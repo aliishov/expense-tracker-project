@@ -1,5 +1,7 @@
-package com.example.expensetracker.services;
+package com.example.expensetracker.services.auth;
 
+import com.example.expensetracker.dtos.authDtos.LoginRequestDto;
+import com.example.expensetracker.dtos.authDtos.LoginResponseDto;
 import com.example.expensetracker.dtos.authDtos.MessageResponseDto;
 import com.example.expensetracker.dtos.authDtos.RegisterRequestDto;
 import com.example.expensetracker.models.Role;
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -51,5 +53,8 @@ public class UserService {
 
         LOGGER.info(MY_LOG_MARKER, "User with Email: {} registered successfully", requestDto.getEmail());
         return ResponseEntity.ok(new MessageResponseDto("User registered successfully"));
+    }
+
+    public ResponseEntity<LoginResponseDto> login(@Valid LoginRequestDto requestDto) {
     }
 }
