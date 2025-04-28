@@ -160,4 +160,23 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         return ResponseEntity.ok(new MessageResponseDto("Password reset successfully"));
     }
+
+    public ResponseEntity<MessageResponseDto> resendConfirmation(@Valid ResendConfirmationRequest request) {
+        LOGGER.info(MY_LOG_MARKER, "Resending confirmation email");
+
+        var user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        String token = tokenService.generateToken(user.getId(), TokenType.EMAIL_CONFIRMATION_TOKEN);
+        String confirmationLink = "http://localhost:8080/api/v1/auth/email/confirm?token=" + token;
+
+        Map<String, String> placeholders = Map.of(
+                "confirmation_link", confirmationLink
+        );
+
+        emailSenderService.sendEmail(user.getEmail(), EmailNotificationSubject.EMAIL_CONFIRMATION_NOTIFICATION, placeholders);
+
+        LOGGER.info(MY_LOG_MARKER, "Confirmation email sent to: {}", user.getEmail());
+        return ResponseEntity.ok(new MessageResponseDto("Confirmation email sent successfully"));
+    }
 }

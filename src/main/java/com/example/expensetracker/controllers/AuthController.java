@@ -43,4 +43,9 @@ public class AuthController {
     public ResponseEntity<MessageResponseDto> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         return authService.resetPassword(request);
     }
+
+    @PostMapping("/email/resend-confirmation")
+    public ResponseEntity<MessageResponseDto> resendConfirmation(@RequestBody @Valid ResendConfirmationRequest request) {
+        return authService.resendConfirmation(request);
+    }
 }
