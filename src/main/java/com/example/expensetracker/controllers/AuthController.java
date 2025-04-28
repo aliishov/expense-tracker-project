@@ -1,9 +1,6 @@
 package com.example.expensetracker.controllers;
 
-import com.example.expensetracker.dtos.authDtos.LoginRequestDto;
-import com.example.expensetracker.dtos.authDtos.LoginResponseDto;
-import com.example.expensetracker.dtos.authDtos.MessageResponseDto;
-import com.example.expensetracker.dtos.authDtos.RegisterRequestDto;
+import com.example.expensetracker.dtos.authDtos.*;
 import com.example.expensetracker.services.auth.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,5 +30,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
         return authService.login(requestDto);
+    }
+
+    @PostMapping("/password/forgot")
+    public ResponseEntity<MessageResponseDto> forgotPassword(@RequestBody @Valid ForgotPasswordRequest requestDto) {
+        return authService.forgotPassword(requestDto);
     }
 }

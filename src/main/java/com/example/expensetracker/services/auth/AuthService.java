@@ -1,9 +1,6 @@
 package com.example.expensetracker.services.auth;
 
-import com.example.expensetracker.dtos.authDtos.LoginRequestDto;
-import com.example.expensetracker.dtos.authDtos.LoginResponseDto;
-import com.example.expensetracker.dtos.authDtos.MessageResponseDto;
-import com.example.expensetracker.dtos.authDtos.RegisterRequestDto;
+import com.example.expensetracker.dtos.authDtos.*;
 import com.example.expensetracker.models.mail.EmailNotificationSubject;
 import com.example.expensetracker.models.user.Role;
 import com.example.expensetracker.models.user.TokenType;
@@ -63,7 +60,7 @@ public class AuthService {
         userRepository.save(newUser);
 
         String token = tokenService.generateToken(newUser.getId(), TokenType.EMAIL_CONFIRMATION_TOKEN);
-        String confirmationLink = "http://localhost:8010/api/v1/auth/email/confirm?token=" + token;
+        String confirmationLink = "http://localhost:8080/api/v1/auth/email/confirm?token=" + token;
 
         Map<String, String> placeholders = Map.of(
                 "confirmation_link", confirmationLink
@@ -94,5 +91,25 @@ public class AuthService {
         LOGGER.info(MY_LOG_MARKER, "User with Email: {} successfully login", user.getEmail());
 
         return ResponseEntity.ok(new LoginResponseDto(accessToken, refreshToken));
+    }
+
+    public ResponseEntity<MessageResponseDto> forgotPassword(@Valid ForgotPasswordRequest requestDto) {
+        LOGGER.info(MY_LOG_MARKER, "Processing forgot password for Email: {}", requestDto.email());
+
+        var user = userRepository.findByEmail(requestDto.email())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        String token = tokenService.generateToken(user.getId(), TokenType.FORGOT_PASSWORD_TOKEN);
+        String resetLink = "http://localhost:8080/api/v1/auth/password/reset?token=" + token;
+
+        Map<String, String> placeholders = Map.of(
+                "reset_link", resetLink
+        );
+
+        emailSenderService.sendEmail(user.getEmail(), EmailNotificationSubject.FORGOT_PASSWORD, placeholders);
+
+        LOGGER.info(MY_LOG_MARKER, "Forgot password email sent to: {}", user.getEmail());
+
+        return ResponseEntity.ok(new MessageResponseDto("Forgot password email sent successfully"));
     }
 }
