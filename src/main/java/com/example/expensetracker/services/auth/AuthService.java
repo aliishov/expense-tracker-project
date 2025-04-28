@@ -8,6 +8,7 @@ import com.example.expensetracker.models.user.User;
 import com.example.expensetracker.repositories.UserRepository;
 import com.example.expensetracker.services.mail.EmailSenderService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +20,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -93,6 +94,28 @@ public class AuthService {
         LOGGER.info(MY_LOG_MARKER, "User with Email: {} successfully login", user.getEmail());
 
         return ResponseEntity.ok(new LoginResponseDto(accessToken, refreshToken));
+    }
+
+    @Transactional
+    public ResponseEntity<MessageResponseDto> confirmEmail(@NotNull String token) {
+        LOGGER.info(MY_LOG_MARKER, "Confirming email with token: {}", token);
+
+        UUID userId;
+        try {
+            userId = tokenService.validateToken(token);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error(MY_LOG_MARKER, "Invalid token provided", e);
+            return ResponseEntity.badRequest().body(new MessageResponseDto("Invalid token provided"));
+        }
+
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setIsAuthenticated(true);
+        userRepository.save(user);
+
+        LOGGER.info(MY_LOG_MARKER, "Email confirmed successfully for user with email: {}", user.getEmail());
+        return ResponseEntity.ok(new MessageResponseDto("Email confirmed successfully"));
     }
 
     public ResponseEntity<MessageResponseDto> forgotPassword(@Valid ForgotPasswordRequest requestDto) {
