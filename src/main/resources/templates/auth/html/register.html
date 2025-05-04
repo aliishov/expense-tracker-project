@@ -29,18 +29,22 @@
                     <div class="form-floating mb-3">
                         <input type="text" th:field="*{firstName}" class="form-control custom-input" placeholder="first Name">
                         <label>first name</label>
+                        <div th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="text-danger small"></div>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" th:field="*{lastName}" class="form-control custom-input" placeholder="last Name">
                         <label>last name</label>
+                        <div th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="text-danger small"></div>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="email" th:field="*{email}" class="form-control custom-input" placeholder="email">
                         <label>email</label>
+                        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger small"></div>
                     </div>
                     <div class="form-floating mb-4">
                         <input type="password" th:field="*{password}" class="form-control custom-input" placeholder="assword">
                         <label>password</label>
+                        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger small"></div>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg py-3 fs-5">Sign up</button>
