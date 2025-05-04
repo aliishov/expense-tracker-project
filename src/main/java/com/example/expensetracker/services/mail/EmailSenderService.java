@@ -53,7 +53,7 @@ public class EmailSenderService {
             messageHelper.setText(emailContent, true);
 
             mailSender.send(mimeMessage);
-            LOGGER.error(MY_LOG_MARKER, "Email sent to: {}", toEmail);
+            LOGGER.info(MY_LOG_MARKER, "Email sent to: {}", toEmail);
         } catch (MessagingException e) {
             LOGGER.error(MY_LOG_MARKER, "Error while sending email to {}", toEmail, e);
         }
