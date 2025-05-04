@@ -63,7 +63,7 @@ public class AuthService {
         userRepository.save(newUser);
 
         String token = tokenService.generateToken(newUser.getId(), TokenType.EMAIL_CONFIRMATION_TOKEN);
-        String confirmationLink = "http://localhost:8080/api/v1/auth/email/confirm?token=" + token;
+        String confirmationLink = "http://localhost:8080/auth/email/confirm?token=" + token;
 
         Map<String, String> placeholders = Map.of(
                 "confirmation_link", confirmationLink
@@ -125,7 +125,7 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String token = tokenService.generateToken(user.getId(), TokenType.FORGOT_PASSWORD_TOKEN);
-        String resetLink = "http://localhost:8080/api/v1/auth/password/reset?token=" + token;
+        String resetLink = "http://localhost:8080/auth/password/reset?token=" + token;
 
         Map<String, String> placeholders = Map.of(
                 "reset_link", resetLink
@@ -168,7 +168,7 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String token = tokenService.generateToken(user.getId(), TokenType.EMAIL_CONFIRMATION_TOKEN);
-        String confirmationLink = "http://localhost:8080/api/v1/auth/email/confirm?token=" + token;
+        String confirmationLink = "http://localhost:8080/auth/email/confirm?token=" + token;
 
         Map<String, String> placeholders = Map.of(
                 "confirmation_link", confirmationLink
