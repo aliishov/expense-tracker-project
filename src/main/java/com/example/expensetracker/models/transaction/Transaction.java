@@ -64,9 +64,9 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @Column(name = "recurring")
+    @Column(name = "recurring", nullable = false)
     private Boolean recurring;
 
-    @Column(name = "is_archived")
+    @Column(name = "is_archived", nullable = false)
     private Boolean isArchived;
 }

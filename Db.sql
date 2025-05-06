@@ -26,3 +26,13 @@ CREATE TABLE IF NOT EXISTS tokens (
     user_id UUID NOT NULL,
     CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    user_id UUID NOT NULL,
+    CONSTRAINT  fk_user_category FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_category_name ON categories(user_id, name);
