@@ -36,3 +36,21 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_user_category_name ON categories(user_id, name);
+
+CREATE TABLE IF NOT EXISTS transactions (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    amount DECIMAL(10,2) NOT NULL,
+    operation_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    category_id INTEGER NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    currency VARCHAR(10) NOT NULL DEFAULT 'USD',
+    recurring BOOLEAN NOT NULL DEFAULT FALSE,
+    is_archived BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT  fk_user_transaction FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
