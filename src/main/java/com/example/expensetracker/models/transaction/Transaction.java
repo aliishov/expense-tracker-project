@@ -46,7 +46,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;
 
     @Column(name = "created_at", nullable = false, updatable = false)

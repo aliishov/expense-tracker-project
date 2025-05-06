@@ -28,7 +28,7 @@ public class Category {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    @Column(name = "user_id")
     private UUID userId;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
