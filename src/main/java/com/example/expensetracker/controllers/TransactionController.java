@@ -1,6 +1,7 @@
 package com.example.expensetracker.controllers;
 
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionRequestDto;
+import com.example.expensetracker.dtos.trasnactionDtos.TransactionResponseDto;
 import com.example.expensetracker.services.transaction.TransactionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
