@@ -6,6 +6,7 @@ import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.transaction.Currency;
 import com.example.expensetracker.models.transaction.Transaction;
 import com.example.expensetracker.models.transaction.Type;
+import com.example.expensetracker.repositories.CategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,19 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class TransactionConverter {
 
+    private final CategoryRepository categoryRepository;
+
     public Transaction convertToDomainTransaction(@Valid TransactionRequestDto transactionRequestDto) {
+        Category category = (categoryRepository.findByName(transactionRequestDto.category()).isPresent())
+                ? categoryRepository.findByName(transactionRequestDto.category()).get()
+                : null;
+
         return Transaction.builder()
                 .title(transactionRequestDto.title())
                 .description(transactionRequestDto.description())
                 .amount(transactionRequestDto.amount())
                 .operationDate(transactionRequestDto.operationDate())
-                .category(new Category())   // TODO
+                .category(category)
                 .type(Type.valueOf(transactionRequestDto.type()))
                 .userId(transactionRequestDto.userId())
                 .createdAt(LocalDateTime.now())

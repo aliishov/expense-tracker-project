@@ -4,7 +4,6 @@ import com.example.expensetracker.dtos.categoyDto.CategoryRequestDto;
 import com.example.expensetracker.dtos.categoyDto.CategoryResponseDto;
 import com.example.expensetracker.dtos.categoyDto.CategoryUpdateDto;
 import com.example.expensetracker.services.category.CategoryService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDto> create(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<CategoryResponseDto> create(@Valid @RequestBody CategoryRequestDto categoryRequestDto) {
         return categoryService.create(categoryRequestDto);
     }
 

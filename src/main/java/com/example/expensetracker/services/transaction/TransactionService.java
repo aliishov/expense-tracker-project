@@ -7,6 +7,7 @@ import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.transaction.Currency;
 import com.example.expensetracker.models.transaction.Transaction;
 import com.example.expensetracker.models.transaction.Type;
+import com.example.expensetracker.repositories.CategoryRepository;
 import com.example.expensetracker.repositories.TransactionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final TransactionConverter transactionConverter;
+    private final CategoryRepository categoryRepository;
 
     private final static Marker MY_LOG_MARKER = MarkerFactory.getMarker("MY_LOGGER");
     private final static Logger LOGGER = LoggerFactory.getLogger("MY_LOGGER");
@@ -100,13 +102,30 @@ public class TransactionService {
     }
 
     private void updateTransaction(Transaction transaction, TransactionUpdateDto transactionUpdateDto) {
-        transaction.setTitle((transactionUpdateDto.title() != null) ? transactionUpdateDto.title() : transaction.getTitle());
-        transaction.setDescription((transactionUpdateDto.description() != null) ? transactionUpdateDto.description() : transaction.getDescription());
-        transaction.setAmount((transactionUpdateDto.amount() != null) ? transactionUpdateDto.amount() : transaction.getAmount());
-        transaction.setOperationDate((transactionUpdateDto.operationDate() != null) ? transactionUpdateDto.operationDate() : transaction.getOperationDate());
-        transaction.setCategory(new Category()); // TODO
-        transaction.setType((transactionUpdateDto.type() != null) ? Type.valueOf(transactionUpdateDto.type()) : transaction.getType());
-        transaction.setCurrency((transactionUpdateDto.currency() != null) ? Currency.valueOf(transactionUpdateDto.currency()) : transaction.getCurrency());
-        transaction.setRecurring((transactionUpdateDto.recurring() != null) ? transactionUpdateDto.recurring() : transaction.getRecurring());
+        transaction.setTitle((transactionUpdateDto.title() != null)
+                ? transactionUpdateDto.title() : transaction.getTitle());
+
+        transaction.setDescription((transactionUpdateDto.description() != null)
+                ? transactionUpdateDto.description() : transaction.getDescription());
+
+        transaction.setAmount((transactionUpdateDto.amount() != null)
+                ? transactionUpdateDto.amount() : transaction.getAmount());
+
+        transaction.setOperationDate((transactionUpdateDto.operationDate() != null)
+                ? transactionUpdateDto.operationDate() : transaction.getOperationDate());
+
+        Category category = (categoryRepository.findByName(transactionUpdateDto.category()).isPresent())
+                ? categoryRepository.findByName(transactionUpdateDto.category()).get()
+                : null;
+        transaction.setCategory(category);
+
+        transaction.setType((transactionUpdateDto.type() != null)
+                ? Type.valueOf(transactionUpdateDto.type()) : transaction.getType());
+
+        transaction.setCurrency((transactionUpdateDto.currency() != null)
+                ? Currency.valueOf(transactionUpdateDto.currency()) : transaction.getCurrency());
+
+        transaction.setRecurring((transactionUpdateDto.recurring() != null)
+                ? transactionUpdateDto.recurring() : transaction.getRecurring());
     }
 }
