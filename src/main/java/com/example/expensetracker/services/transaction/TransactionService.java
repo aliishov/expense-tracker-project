@@ -9,6 +9,7 @@ import com.example.expensetracker.models.transaction.Transaction;
 import com.example.expensetracker.models.transaction.Type;
 import com.example.expensetracker.repositories.CategoryRepository;
 import com.example.expensetracker.repositories.TransactionRepository;
+import com.example.expensetracker.utils.SecurityUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,11 +53,9 @@ public class TransactionService {
 
     public ResponseEntity<TransactionResponseDto> getById(UUID userId, Long transactionId) {
         LOGGER.info(MY_LOG_MARKER, "Getting transaction with ID: {} for user with ID: {}", transactionId, userId);
-        Transaction transaction = transactionRepository.findByIdAndUserId(transactionId, userId)
-                .orElseThrow(() -> {
-                    LOGGER.info(MY_LOG_MARKER, "Transaction with ID: {} not found for user with ID: {}", transactionId, userId);
-                    return new EntityNotFoundException("Transaction not found");
-                });
+        Transaction transaction = getTransactionById(transactionId);
+
+        SecurityUtil.checkTransactionOwnership(transaction, userId);
 
         TransactionResponseDto transactionResponseDto = transactionConverter.convertToTransactionResponse(transaction);
 
@@ -82,11 +80,10 @@ public class TransactionService {
                                                          UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Updating transaction with ID: {}", transactionId);
 
-        Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> {
-                    LOGGER.info(MY_LOG_MARKER, "Transaction with ID: {} not found", transactionId);
-                    return new EntityNotFoundException("Transaction not found");
-                });
+        Transaction transaction = getTransactionById(transactionId);
+
+        SecurityUtil.checkTransactionOwnership(transaction, userId);
+
         updateTransaction(transaction, transactionUpdateDto);
         transactionRepository.save(transaction);
 
@@ -98,10 +95,22 @@ public class TransactionService {
 
     public ResponseEntity<Void> delete(Long transactionId, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Deleting transaction with ID: {}", transactionId);
-        transactionRepository.deleteById(transactionId);
+
+        Transaction transaction = getTransactionById(transactionId);
+
+        SecurityUtil.checkTransactionOwnership(transaction, userId);
+        transactionRepository.delete(transaction);
 
         LOGGER.info(MY_LOG_MARKER, "Transaction with ID: {} deleted successfully", transactionId);
         return ResponseEntity.noContent().build();
+    }
+
+    private Transaction getTransactionById(Long transactionId) {
+        return transactionRepository.findById(transactionId)
+                .orElseThrow(() -> {
+                    LOGGER.info(MY_LOG_MARKER, "Transaction with ID: {} not found", transactionId);
+                    return new EntityNotFoundException("Transaction not found");
+                });
     }
 
     private void updateTransaction(Transaction transaction, TransactionUpdateDto transactionUpdateDto) {
