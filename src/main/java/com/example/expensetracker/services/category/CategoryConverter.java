@@ -8,14 +8,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryConverter {
-    public Category convertToDomainCategory(@Valid CategoryRequestDto categoryRequestDto) {
+    public Category convertToDomainCategory(@Valid CategoryRequestDto categoryRequestDto, UUID userId) {
         return Category.builder()
                 .name(categoryRequestDto.name())
                 .type(Type.valueOf(categoryRequestDto.type()))
-                .userId(categoryRequestDto.userId())
+                .userId(userId)
                 .build();
     }
 

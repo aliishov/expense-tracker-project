@@ -6,6 +6,7 @@ import com.example.expensetracker.dtos.categoyDto.CategoryUpdateDto;
 import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.transaction.Type;
 import com.example.expensetracker.repositories.CategoryRepository;
+import com.example.expensetracker.utils.SecurityUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class CategoryService {
     public ResponseEntity<CategoryResponseDto> create(@Valid CategoryRequestDto categoryRequestDto, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Creating new category with name: {}", categoryRequestDto.name());
 
-        Category newCategory = categoryConverter.convertToDomainCategory(categoryRequestDto);
+        Category newCategory = categoryConverter.convertToDomainCategory(categoryRequestDto, userId);
         categoryRepository.save(newCategory);
 
         CategoryResponseDto categoryResponseDto = categoryConverter.convertToCategoryResponse(newCategory);
@@ -45,11 +46,9 @@ public class CategoryService {
                                                       UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Updating category with Name: {}", categoryName);
 
-        Category category = categoryRepository.findByName(categoryName)
-                .orElseThrow(() -> {
-                    LOGGER.info(MY_LOG_MARKER, "Category with Name: {} not found", categoryName);
-                    return new EntityNotFoundException("Category not found");
-                });
+        Category category = getCategoryByName(categoryName);
+
+        SecurityUtil.checkCategoryOwnership(category, userId);
 
         category.setName((categoryUpdateDto.name() != null) ? categoryUpdateDto.name() : category.getName());
         category.setType((categoryUpdateDto.type() != null) ? Type.valueOf(categoryUpdateDto.type()) : category.getType());
@@ -62,9 +61,22 @@ public class CategoryService {
 
     public ResponseEntity<Void> delete(String categoryName, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Deleting category with Name: {}", categoryName);
-        categoryRepository.deleteByName(categoryName);
+
+        Category category = getCategoryByName(categoryName);
+
+        SecurityUtil.checkCategoryOwnership(category, userId);
+
+        categoryRepository.delete(category);
 
         LOGGER.info(MY_LOG_MARKER, "Category with Name: {} deleted successfully", categoryName);
         return ResponseEntity.noContent().build();
+    }
+
+    private Category getCategoryByName(String categoryName) {
+        return categoryRepository.findByName(categoryName)
+                .orElseThrow(() -> {
+                    LOGGER.info(MY_LOG_MARKER, "Category with Name: {} not found", categoryName);
+                    return new EntityNotFoundException("Category not found");
+                });
     }
 }
