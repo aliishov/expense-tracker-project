@@ -11,7 +11,6 @@ public record TransactionRequestDto(
         LocalDateTime operationDate,
         String category,
         String type,
-        UUID userId,
         String currency,
         Boolean recurring
 ) {

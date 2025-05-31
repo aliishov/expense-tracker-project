@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class TransactionConverter {
 
     private final CategoryRepository categoryRepository;
 
-    public Transaction convertToDomainTransaction(@Valid TransactionRequestDto transactionRequestDto) {
+    public Transaction convertToDomainTransaction(@Valid TransactionRequestDto transactionRequestDto, UUID userId) {
         Category category = (categoryRepository.findByName(transactionRequestDto.category()).isPresent())
                 ? categoryRepository.findByName(transactionRequestDto.category()).get()
                 : null;
@@ -31,7 +32,7 @@ public class TransactionConverter {
                 .operationDate(transactionRequestDto.operationDate())
                 .category(category)
                 .type(Type.valueOf(transactionRequestDto.type()))
-                .userId(transactionRequestDto.userId())
+                .userId(userId)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .deletedAt(null)

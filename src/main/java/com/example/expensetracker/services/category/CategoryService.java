@@ -16,6 +16,8 @@ import org.slf4j.MarkerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -26,7 +28,7 @@ public class CategoryService {
     private final static Marker MY_LOG_MARKER = MarkerFactory.getMarker("MY_LOGGER");
     private final static Logger LOGGER = LoggerFactory.getLogger("MY_LOGGER");
 
-    public ResponseEntity<CategoryResponseDto> create(@Valid CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<CategoryResponseDto> create(@Valid CategoryRequestDto categoryRequestDto, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Creating new category with name: {}", categoryRequestDto.name());
 
         Category newCategory = categoryConverter.convertToDomainCategory(categoryRequestDto);
@@ -39,7 +41,8 @@ public class CategoryService {
     }
 
     public ResponseEntity<CategoryResponseDto> update(String categoryName,
-                                                      @Valid CategoryUpdateDto categoryUpdateDto) {
+                                                      @Valid CategoryUpdateDto categoryUpdateDto,
+                                                      UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Updating category with Name: {}", categoryName);
 
         Category category = categoryRepository.findByName(categoryName)
@@ -57,7 +60,7 @@ public class CategoryService {
         return ResponseEntity.ok(categoryResponseDto);
     }
 
-    public ResponseEntity<Void> delete(String categoryName) {
+    public ResponseEntity<Void> delete(String categoryName, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Deleting category with Name: {}", categoryName);
         categoryRepository.deleteByName(categoryName);
 

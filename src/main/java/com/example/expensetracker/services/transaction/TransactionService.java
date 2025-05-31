@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,10 +65,10 @@ public class TransactionService {
         return ResponseEntity.ok(transactionResponseDto);
     }
 
-    public ResponseEntity<TransactionResponseDto> create(@Valid TransactionRequestDto transactionRequestDto) {
+    public ResponseEntity<TransactionResponseDto> create(@Valid TransactionRequestDto transactionRequestDto, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Creating new transaction");
 
-        Transaction newTransaction = transactionConverter.convertToDomainTransaction(transactionRequestDto);
+        Transaction newTransaction = transactionConverter.convertToDomainTransaction(transactionRequestDto, userId);
         transactionRepository.save(newTransaction);
 
         TransactionResponseDto transactionResponseDto = transactionConverter.convertToTransactionResponse(newTransaction);
@@ -77,8 +78,10 @@ public class TransactionService {
     }
 
     public ResponseEntity<TransactionResponseDto> update(Long transactionId,
-                                                         @Valid TransactionUpdateDto transactionUpdateDto) {
+                                                         @Valid TransactionUpdateDto transactionUpdateDto,
+                                                         UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Updating transaction with ID: {}", transactionId);
+
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> {
                     LOGGER.info(MY_LOG_MARKER, "Transaction with ID: {} not found", transactionId);
@@ -93,7 +96,7 @@ public class TransactionService {
         return ResponseEntity.ok(updatedTransaction);
     }
 
-    public ResponseEntity<Void> delete(Long transactionId) {
+    public ResponseEntity<Void> delete(Long transactionId, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Deleting transaction with ID: {}", transactionId);
         transactionRepository.deleteById(transactionId);
 
