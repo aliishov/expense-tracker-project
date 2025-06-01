@@ -1,0 +1,35 @@
+package com.example.expensetracker.controllers;
+
+import com.example.expensetracker.dtos.accountDtos.AccountChargeDto;
+import com.example.expensetracker.dtos.accountDtos.AccountResponseDto;
+import com.example.expensetracker.models.user.User;
+import com.example.expensetracker.services.account.AccountService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/balances")
+@RequiredArgsConstructor
+@Validated
+@Tag(name = "Accounts Controller",
+        description = "Manage Balances in Project")
+public class AccountController {
+
+    private final AccountService accountService;
+
+    @PostMapping("/charge")
+    public ResponseEntity<AccountResponseDto> chargeAccount(@RequestBody AccountChargeDto accountChargeDto,
+                                                            @AuthenticationPrincipal User user) {
+        UUID userId = user.getId();
+        return accountService.charge(accountChargeDto, userId);
+    }
+}

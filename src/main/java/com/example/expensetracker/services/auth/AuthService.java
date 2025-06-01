@@ -1,11 +1,14 @@
 package com.example.expensetracker.services.auth;
 
+import com.example.expensetracker.dtos.accountDtos.AccountRequestDto;
 import com.example.expensetracker.dtos.authDtos.*;
+import com.example.expensetracker.models.enums.Currency;
 import com.example.expensetracker.models.mail.EmailNotificationSubject;
 import com.example.expensetracker.models.user.Role;
 import com.example.expensetracker.models.user.TokenType;
 import com.example.expensetracker.models.user.User;
 import com.example.expensetracker.repositories.UserRepository;
+import com.example.expensetracker.services.account.AccountService;
 import com.example.expensetracker.services.mail.EmailSenderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +39,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final EmailSenderService emailSenderService;
     private final TokenService tokenService;
+    private final AccountService accountService;
 
     private final static Marker MY_LOG_MARKER = MarkerFactory.getMarker("MY_LOGGER");
     private final static Logger LOGGER = LoggerFactory.getLogger("MY_LOGGER");
@@ -61,6 +65,14 @@ public class AuthService {
                 .build();
 
         userRepository.save(newUser);
+
+        AccountRequestDto accountRequestDto = new AccountRequestDto(
+                Currency.USD,
+                newUser.getId(),
+                newUser.getFirstName() + "Balance"
+        );
+
+        accountService.createAccount(accountRequestDto);
 
         String token = tokenService.generateToken(newUser.getId(), TokenType.EMAIL_CONFIRMATION_TOKEN);
         String confirmationLink = "http://localhost:8080/auth/email/confirm?token=" + token;
