@@ -2,8 +2,8 @@ package com.example.expensetracker.services.category;
 
 import com.example.expensetracker.dtos.categoyDto.CategoryRequestDto;
 import com.example.expensetracker.dtos.categoyDto.CategoryResponseDto;
-import com.example.expensetracker.models.transaction.Category;
-import com.example.expensetracker.models.transaction.Type;
+import com.example.expensetracker.models.enums.Category;
+import com.example.expensetracker.models.enums.Type;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

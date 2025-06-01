@@ -1,5 +1,6 @@
-package com.example.expensetracker.models.transaction;
+package com.example.expensetracker.models.enums;
 
+import com.example.expensetracker.models.transaction.Transaction;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

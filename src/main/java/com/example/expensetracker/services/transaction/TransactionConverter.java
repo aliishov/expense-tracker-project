@@ -2,10 +2,10 @@ package com.example.expensetracker.services.transaction;
 
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionRequestDto;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionResponseDto;
-import com.example.expensetracker.models.transaction.Category;
+import com.example.expensetracker.models.enums.Category;
 import com.example.expensetracker.models.transaction.Currency;
 import com.example.expensetracker.models.transaction.Transaction;
-import com.example.expensetracker.models.transaction.Type;
+import com.example.expensetracker.models.enums.Type;
 import com.example.expensetracker.repositories.CategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
