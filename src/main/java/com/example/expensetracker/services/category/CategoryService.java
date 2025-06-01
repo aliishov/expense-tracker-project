@@ -3,7 +3,7 @@ package com.example.expensetracker.services.category;
 import com.example.expensetracker.dtos.categoyDto.CategoryRequestDto;
 import com.example.expensetracker.dtos.categoyDto.CategoryResponseDto;
 import com.example.expensetracker.dtos.categoyDto.CategoryUpdateDto;
-import com.example.expensetracker.models.enums.Category;
+import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.enums.Type;
 import com.example.expensetracker.repositories.CategoryRepository;
 import com.example.expensetracker.utils.SecurityUtil;

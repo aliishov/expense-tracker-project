@@ -1,6 +1,6 @@
 package com.example.expensetracker.utils;
 
-import com.example.expensetracker.models.enums.Category;
+import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

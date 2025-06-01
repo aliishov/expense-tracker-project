@@ -1,4 +1,4 @@
-package com.example.expensetracker.models.transaction;
+package com.example.expensetracker.models.enums;
 
 public enum Currency {
     AZN,
