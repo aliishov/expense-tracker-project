@@ -3,7 +3,7 @@ package com.example.expensetracker.services.auth;
 import com.example.expensetracker.models.user.Token;
 import com.example.expensetracker.models.user.TokenType;
 import com.example.expensetracker.repositories.TokenRepository;
-import com.example.expensetracker.utils.exceptions.TokenNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class TokenService {
 
     public UUID validateToken(String token) {
         var tokenDomain = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new TokenNotFoundException("Token not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Token not found"));
 
         if (tokenDomain.getConfirmedAt() != null) {
             throw new IllegalArgumentException("Token already confirmed");
