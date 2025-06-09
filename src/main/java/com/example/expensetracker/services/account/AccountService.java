@@ -44,9 +44,9 @@ public class AccountService {
                     return new EntityNotFoundException("Account not found");
                 });
 
-//        if (!account.getCurrency().equals(accountChargeDto.currency())) {
-//            // TODO: Implement Currency Conversion
-//        }
+        if (!account.getCurrency().equals(accountChargeDto.currency())) {
+            // TODO: Implement Currency Conversion
+        }
 
         account.setBalance(account.getBalance().add(accountChargeDto.amount()));
         accountRepository.save(account);
