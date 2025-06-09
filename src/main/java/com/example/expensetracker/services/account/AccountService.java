@@ -4,6 +4,7 @@ import com.example.expensetracker.dtos.accountDtos.AccountChargeDto;
 import com.example.expensetracker.dtos.accountDtos.AccountRequestDto;
 import com.example.expensetracker.dtos.accountDtos.AccountResponseDto;
 import com.example.expensetracker.models.balance.Account;
+import com.example.expensetracker.models.enums.Currency;
 import com.example.expensetracker.repositories.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.slf4j.MarkerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Service
@@ -44,11 +47,15 @@ public class AccountService {
                     return new EntityNotFoundException("Account not found");
                 });
 
-        if (!account.getCurrency().equals(accountChargeDto.currency())) {
-            // TODO: Implement Currency Conversion
-        }
+        BigDecimal sourceRate = BigDecimal.valueOf(Currency.valueOf(accountChargeDto.currency()).getVal());
+        BigDecimal targetRate = BigDecimal.valueOf(account.getCurrency().getVal());
 
-        account.setBalance(account.getBalance().add(accountChargeDto.amount()));
+        BigDecimal convertedAmount = accountChargeDto.amount()
+                .multiply(sourceRate)
+                .divide(targetRate, 2, RoundingMode.HALF_UP);
+
+        BigDecimal newBalance = account.getBalance().add(convertedAmount);
+        account.setBalance(newBalance);
         accountRepository.save(account);
 
         AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
