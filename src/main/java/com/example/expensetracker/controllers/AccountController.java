@@ -2,6 +2,7 @@ package com.example.expensetracker.controllers;
 
 import com.example.expensetracker.dtos.accountDtos.AccountChargeDto;
 import com.example.expensetracker.dtos.accountDtos.AccountResponseDto;
+import com.example.expensetracker.dtos.accountDtos.CurrencyConvertDto;
 import com.example.expensetracker.models.user.User;
 import com.example.expensetracker.services.account.AccountService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -31,5 +29,12 @@ public class AccountController {
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
         return accountService.charge(accountChargeDto, userId);
+    }
+
+    @PutMapping("/convert")
+    public ResponseEntity<AccountResponseDto> chargeAccount(@RequestBody CurrencyConvertDto currencyConvertDto,
+                                                            @AuthenticationPrincipal User user) {
+        UUID userId = user.getId();
+        return accountService.convert(currencyConvertDto, userId);
     }
 }

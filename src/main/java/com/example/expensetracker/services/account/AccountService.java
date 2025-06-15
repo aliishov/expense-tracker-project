@@ -3,6 +3,7 @@ package com.example.expensetracker.services.account;
 import com.example.expensetracker.dtos.accountDtos.AccountChargeDto;
 import com.example.expensetracker.dtos.accountDtos.AccountRequestDto;
 import com.example.expensetracker.dtos.accountDtos.AccountResponseDto;
+import com.example.expensetracker.dtos.accountDtos.CurrencyConvertDto;
 import com.example.expensetracker.models.balance.Account;
 import com.example.expensetracker.models.enums.Currency;
 import com.example.expensetracker.repositories.AccountRepository;
@@ -60,6 +61,30 @@ public class AccountService {
 
         AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
         LOGGER.info(MY_LOG_MARKER, "Account with user ID: {} successfully charged with amount: {}", userId, accountChargeDto.amount());
+        return ResponseEntity.ok(accountResponseDto);
+    }
+
+    public ResponseEntity<AccountResponseDto> convert(CurrencyConvertDto currencyConvertDto, UUID userId) {
+        LOGGER.info(MY_LOG_MARKER, "Converting User Account Currency with user ID: {} to {}", userId, currencyConvertDto.newCurrency());
+
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    LOGGER.info(MY_LOG_MARKER, "Account with user ID: {} not found", userId);
+                    return new EntityNotFoundException("Account not found");
+                });
+
+        BigDecimal sourceRate = BigDecimal.valueOf(Currency.valueOf(currencyConvertDto.newCurrency()).getVal());
+        BigDecimal targetRate = BigDecimal.valueOf(account.getCurrency().getVal());
+
+        BigDecimal convertedAmount = account.getBalance()
+                .multiply(targetRate)
+                .divide(sourceRate, 2, RoundingMode.HALF_UP);
+
+        account.setBalance(convertedAmount);
+        accountRepository.save(account);
+
+        AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
+        LOGGER.info(MY_LOG_MARKER, "Account Currency with user ID: {} successfully converted", userId);
         return ResponseEntity.ok(accountResponseDto);
     }
 }
