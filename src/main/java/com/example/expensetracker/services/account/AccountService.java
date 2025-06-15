@@ -42,18 +42,10 @@ public class AccountService {
     public ResponseEntity<AccountResponseDto> charge(AccountChargeDto accountChargeDto, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Charge User Account with user ID: {} and account Balance: {}", userId, accountChargeDto.amount());
 
-        Account account = accountRepository.findByUserId(userId)
-                .orElseThrow(() -> {
-                    LOGGER.info(MY_LOG_MARKER, "Account with user ID: {} not found", userId);
-                    return new EntityNotFoundException("Account not found");
-                });
+        Account account = getAccountByUserId(userId);
 
-        BigDecimal sourceRate = BigDecimal.valueOf(Currency.valueOf(accountChargeDto.currency()).getVal());
-        BigDecimal targetRate = BigDecimal.valueOf(account.getCurrency().getVal());
-
-        BigDecimal convertedAmount = accountChargeDto.amount()
-                .multiply(sourceRate)
-                .divide(targetRate, 2, RoundingMode.HALF_UP);
+        BigDecimal convertedAmount = convert(accountChargeDto.amount(),
+                Currency.valueOf(accountChargeDto.currency()), account.getCurrency());
 
         BigDecimal newBalance = account.getBalance().add(convertedAmount);
         account.setBalance(newBalance);
@@ -67,18 +59,10 @@ public class AccountService {
     public ResponseEntity<AccountResponseDto> convert(CurrencyConvertDto currencyConvertDto, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Converting User Account Currency with user ID: {} to {}", userId, currencyConvertDto.newCurrency());
 
-        Account account = accountRepository.findByUserId(userId)
-                .orElseThrow(() -> {
-                    LOGGER.info(MY_LOG_MARKER, "Account with user ID: {} not found", userId);
-                    return new EntityNotFoundException("Account not found");
-                });
+        Account account = getAccountByUserId(userId);
 
-        BigDecimal sourceRate = BigDecimal.valueOf(Currency.valueOf(currencyConvertDto.newCurrency()).getVal());
-        BigDecimal targetRate = BigDecimal.valueOf(account.getCurrency().getVal());
-
-        BigDecimal convertedAmount = account.getBalance()
-                .multiply(targetRate)
-                .divide(sourceRate, 2, RoundingMode.HALF_UP);
+        BigDecimal convertedAmount = convert(account.getBalance(),
+                account.getCurrency(), Currency.valueOf(currencyConvertDto.newCurrency()));
 
         account.setBalance(convertedAmount);
         accountRepository.save(account);
@@ -86,5 +70,26 @@ public class AccountService {
         AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
         LOGGER.info(MY_LOG_MARKER, "Account Currency with user ID: {} successfully converted", userId);
         return ResponseEntity.ok(accountResponseDto);
+    }
+
+    private Account getAccountByUserId(UUID userId) {
+        return accountRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    LOGGER.info(MY_LOG_MARKER, "Account with user ID: {} not found", userId);
+                    return new EntityNotFoundException("Account not found");
+                });
+    }
+
+    private BigDecimal convert(BigDecimal amount, Currency fromCurrency, Currency toCurrency) {
+        if (fromCurrency == toCurrency) {
+            return amount;
+        }
+
+        BigDecimal fromRate = BigDecimal.valueOf(fromCurrency.getVal());
+        BigDecimal toRate = BigDecimal.valueOf(toCurrency.getVal());
+
+        return amount
+                .multiply(fromRate)
+                .divide(toRate, 2, RoundingMode.HALF_UP);
     }
 }
