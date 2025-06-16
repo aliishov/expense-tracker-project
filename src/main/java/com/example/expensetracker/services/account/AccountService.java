@@ -65,6 +65,7 @@ public class AccountService {
                 account.getCurrency(), Currency.valueOf(currencyConvertDto.newCurrency()));
 
         account.setBalance(convertedAmount);
+        account.setCurrency(Currency.valueOf(currencyConvertDto.newCurrency()));
         accountRepository.save(account);
 
         AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
