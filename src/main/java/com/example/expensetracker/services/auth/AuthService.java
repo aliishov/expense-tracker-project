@@ -2,7 +2,6 @@ package com.example.expensetracker.services.auth;
 
 import com.example.expensetracker.dtos.accountDtos.AccountRequestDto;
 import com.example.expensetracker.dtos.authDtos.*;
-import com.example.expensetracker.models.enums.Currency;
 import com.example.expensetracker.models.mail.EmailNotificationSubject;
 import com.example.expensetracker.models.user.Role;
 import com.example.expensetracker.models.user.TokenType;
@@ -67,9 +66,8 @@ public class AuthService {
         userRepository.save(newUser);
 
         AccountRequestDto accountRequestDto = new AccountRequestDto(
-                Currency.USD,
                 newUser.getId(),
-                newUser.getFirstName() + "Balance"
+                newUser.getFirstName() + "'s Balance"
         );
 
         accountService.createAccount(accountRequestDto);
