@@ -36,6 +36,16 @@ public class AccountService {
         LOGGER.info(MY_LOG_MARKER, "Account with Name: {} successfully created", newAccount.getName());
     }
 
+    public ResponseEntity<AccountResponseDto> getByUserId(UUID userId) {
+        LOGGER.info(MY_LOG_MARKER, "Getting account with ID: {}", userId);
+
+        Account account = getAccountByUserId(userId);
+        AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
+
+        LOGGER.info(MY_LOG_MARKER, "Account with ID: {} retrieved successfully for user with ID: {}", account.getId(), userId);
+        return ResponseEntity.ok(accountResponseDto);
+    }
+
     public ResponseEntity<AccountResponseDto> charge(AccountChargeDto accountChargeDto, UUID userId) {
         LOGGER.info(MY_LOG_MARKER, "Charge User Account with user ID: {} and account Balance: {}", userId, accountChargeDto.amount());
 

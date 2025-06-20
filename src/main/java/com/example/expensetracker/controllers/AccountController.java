@@ -25,6 +25,12 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    @GetMapping
+    public ResponseEntity<AccountResponseDto> getByUserId(@AuthenticationPrincipal User user) {
+        UUID userId = user.getId();
+        return accountService.getByUserId(userId);
+    }
+
     @PostMapping("/charge")
     public ResponseEntity<AccountResponseDto> chargeAccount(@RequestBody AccountChargeDto accountChargeDto,
                                                             @AuthenticationPrincipal User user) {
