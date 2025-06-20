@@ -2,6 +2,7 @@ package com.example.expensetracker.controllers;
 
 import com.example.expensetracker.dtos.accountDtos.AccountChargeDto;
 import com.example.expensetracker.dtos.accountDtos.AccountResponseDto;
+import com.example.expensetracker.dtos.accountDtos.AccountUpdateDto;
 import com.example.expensetracker.dtos.accountDtos.CurrencyConvertDto;
 import com.example.expensetracker.models.user.User;
 import com.example.expensetracker.services.account.AccountService;
@@ -36,5 +37,12 @@ public class AccountController {
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
         return accountService.convert(currencyConvertDto, userId);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<AccountResponseDto> updateAccount(@RequestBody AccountUpdateDto accountUpdateDto,
+                                                            @AuthenticationPrincipal User user) {
+        UUID userId = user.getId();
+        return accountService.update(accountUpdateDto, userId);
     }
 }

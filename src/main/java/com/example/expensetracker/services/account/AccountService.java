@@ -1,9 +1,6 @@
 package com.example.expensetracker.services.account;
 
-import com.example.expensetracker.dtos.accountDtos.AccountChargeDto;
-import com.example.expensetracker.dtos.accountDtos.AccountRequestDto;
-import com.example.expensetracker.dtos.accountDtos.AccountResponseDto;
-import com.example.expensetracker.dtos.accountDtos.CurrencyConvertDto;
+import com.example.expensetracker.dtos.accountDtos.*;
 import com.example.expensetracker.models.balance.Account;
 import com.example.expensetracker.models.enums.Currency;
 import com.example.expensetracker.repositories.AccountRepository;
@@ -71,6 +68,20 @@ public class AccountService {
         AccountResponseDto accountResponseDto = accountConverter.convertToAccountResponse(account);
         LOGGER.info(MY_LOG_MARKER, "Account Currency with user ID: {} successfully converted", userId);
         return ResponseEntity.ok(accountResponseDto);
+    }
+
+    public ResponseEntity<AccountResponseDto> update(AccountUpdateDto accountUpdateDto, UUID userId) {
+        LOGGER.info(MY_LOG_MARKER, "Updating User Account with user ID: {}", userId);
+
+        Account account = getAccountByUserId(userId);
+
+        account.setBalance(accountUpdateDto.newBalance());
+        account.setCurrency(Currency.valueOf(accountUpdateDto.newCurrency()));
+        account.setName(accountUpdateDto.newName());
+        accountRepository.save(account);
+
+        LOGGER.info(MY_LOG_MARKER, "User Account with ID: {} successfully updated", userId);
+        return ResponseEntity.ok(accountConverter.convertToAccountResponse(account));
     }
 
     private Account getAccountByUserId(UUID userId) {
