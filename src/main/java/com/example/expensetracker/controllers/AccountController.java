@@ -32,14 +32,14 @@ public class AccountController {
         return accountService.charge(accountChargeDto, userId);
     }
 
-    @PutMapping("/convert")
+    @PatchMapping("/convert")
     public ResponseEntity<AccountResponseDto> chargeAccount(@RequestBody CurrencyConvertDto currencyConvertDto,
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
         return accountService.convert(currencyConvertDto, userId);
     }
 
-    @PutMapping("/update")
+    @PatchMapping("/update")
     public ResponseEntity<AccountResponseDto> updateAccount(@RequestBody AccountUpdateDto accountUpdateDto,
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
