@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/transactions/categories")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Categories Controller",
