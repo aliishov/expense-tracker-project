@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/balances")
+@RequestMapping("/accounts")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Accounts Controller",
@@ -25,27 +25,27 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<AccountResponseDto> getByUserId(@AuthenticationPrincipal User user) {
         UUID userId = user.getId();
         return accountService.getByUserId(userId);
     }
 
-    @PostMapping("/charge")
+    @PostMapping("/me/charge")
     public ResponseEntity<AccountResponseDto> chargeAccount(@RequestBody AccountChargeDto accountChargeDto,
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
         return accountService.charge(accountChargeDto, userId);
     }
 
-    @PatchMapping("/convert")
+    @PatchMapping("/me/convert-currency")
     public ResponseEntity<AccountResponseDto> chargeAccount(@RequestBody CurrencyConvertDto currencyConvertDto,
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
         return accountService.convert(currencyConvertDto, userId);
     }
 
-    @PatchMapping("/update")
+    @PatchMapping("/me/update")
     public ResponseEntity<AccountResponseDto> updateAccount(@RequestBody AccountUpdateDto accountUpdateDto,
                                                             @AuthenticationPrincipal User user) {
         UUID userId = user.getId();
