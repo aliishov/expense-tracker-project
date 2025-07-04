@@ -2,10 +2,10 @@ package com.example.expensetracker.services.transaction;
 
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionRequestDto;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionResponseDto;
-import com.example.expensetracker.dtos.trasnactionDtos.TransactionUpdateDto;
 import com.example.expensetracker.models.balance.Account;
 import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.enums.Currency;
+import com.example.expensetracker.models.transaction.RecurringType;
 import com.example.expensetracker.models.transaction.Transaction;
 import com.example.expensetracker.models.enums.Type;
 import com.example.expensetracker.repositories.AccountRepository;
@@ -23,6 +23,7 @@ import org.slf4j.MarkerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,14 +71,12 @@ public class TransactionService {
     public ResponseEntity<TransactionResponseDto> create(@Valid TransactionRequestDto transactionRequestDto, UUID userId) throws BadRequestException {
         LOGGER.info(MY_LOG_MARKER, "Creating new transaction");
 
-        Account account = accountRepository.findByUserId(userId)
-                .orElseThrow(() -> {
-                    LOGGER.error(MY_LOG_MARKER, "Account not found");
-                    return new EntityNotFoundException("Account not found");
-                });
+        validateRecurringDto(transactionRequestDto);
 
+        Account account = getAccountByUserId(userId);
         if (account.getBalance().compareTo(transactionRequestDto.amount()) < 0) {
-            LOGGER.error(MY_LOG_MARKER, "Balance not enough");
+            LOGGER.error(MY_LOG_MARKER, "Insufficient balance for user {}. Required: {}, Available: {}",
+                    userId, transactionRequestDto.amount(), account.getBalance());
             throw new BadRequestException("Balance not enough");
         }
 
@@ -95,15 +94,15 @@ public class TransactionService {
     }
 
     public ResponseEntity<TransactionResponseDto> update(Long transactionId,
-                                                         @Valid TransactionUpdateDto transactionUpdateDto,
-                                                         UUID userId) {
+                                                         @Valid TransactionRequestDto transactionRequestDto,
+                                                         UUID userId) throws BadRequestException {
         LOGGER.info(MY_LOG_MARKER, "Updating transaction with ID: {}", transactionId);
 
         Transaction transaction = getTransactionById(transactionId);
 
         SecurityUtil.checkTransactionOwnership(transaction, userId);
 
-        updateTransaction(transaction, transactionUpdateDto);
+        updateTransaction(transaction, transactionRequestDto);
         transactionRepository.save(transaction);
 
         TransactionResponseDto updatedTransaction = transactionConverter.convertToTransactionResponse(transaction);
@@ -132,31 +131,54 @@ public class TransactionService {
                 });
     }
 
-    private void updateTransaction(Transaction transaction, TransactionUpdateDto transactionUpdateDto) {
-        transaction.setTitle((transactionUpdateDto.title() != null)
-                ? transactionUpdateDto.title() : transaction.getTitle());
+    private void updateTransaction(Transaction transaction, TransactionRequestDto dto) throws BadRequestException {
+        if (dto.title() != null) transaction.setTitle(dto.title());
+        if (dto.description() != null) transaction.setDescription(dto.description());
+        if (dto.operationDate() != null) transaction.setOperationDate(dto.operationDate());
 
-        transaction.setDescription((transactionUpdateDto.description() != null)
-                ? transactionUpdateDto.description() : transaction.getDescription());
+        if (dto.amount() != null && !dto.amount().equals(transaction.getAmount())) {
+            updateAccountBalanceOnAmountChange(transaction, dto.amount());
+            transaction.setAmount(dto.amount());
+        }
 
-        transaction.setAmount((transactionUpdateDto.amount() != null)
-                ? transactionUpdateDto.amount() : transaction.getAmount());
+        if (dto.category() != null) {
+            Category category = categoryRepository.findByName(dto.category())
+                    .orElseThrow(() -> new BadRequestException("Category not found: " + dto.category()));
+            transaction.setCategory(category);
+        }
 
-        transaction.setOperationDate((transactionUpdateDto.operationDate() != null)
-                ? transactionUpdateDto.operationDate() : transaction.getOperationDate());
+        if (dto.type() != null) transaction.setType(Type.valueOf(dto.type()));
+        if (dto.currency() != null) transaction.setCurrency(Currency.valueOf(dto.currency()));
+        if (dto.recurring() != null) transaction.setRecurring(dto.recurring());
 
-        Category category = (categoryRepository.findByName(transactionUpdateDto.category()).isPresent())
-                ? categoryRepository.findByName(transactionUpdateDto.category()).get()
-                : null;
-        transaction.setCategory(category);
+        if (Boolean.TRUE.equals(dto.recurring())) {
+            if (dto.recurringType() == null) {
+                throw new BadRequestException("Recurring type is required for recurring transactions");
+            }
+            transaction.setRecurringType(RecurringType.valueOf(dto.recurringType()));
+        }
+    }
 
-        transaction.setType((transactionUpdateDto.type() != null)
-                ? Type.valueOf(transactionUpdateDto.type()) : transaction.getType());
+    private Account getAccountByUserId(UUID userId) {
+        return accountRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    LOGGER.info(MY_LOG_MARKER, "Account with user ID: {} not found", userId);
+                    return new EntityNotFoundException("Account not found");
+                });
+    }
 
-        transaction.setCurrency((transactionUpdateDto.currency() != null)
-                ? Currency.valueOf(transactionUpdateDto.currency()) : transaction.getCurrency());
+    private void validateRecurringDto(TransactionRequestDto transactionRequestDto) throws BadRequestException {
+        if (Boolean.TRUE.equals(transactionRequestDto.recurring()) && transactionRequestDto.recurringType() == null) {
+            LOGGER.error(MY_LOG_MARKER, "Invalid recurring transaction request");
+            throw new BadRequestException("Recurring type is required for recurring transactions");
+        }
+    }
 
-        transaction.setRecurring((transactionUpdateDto.recurring() != null)
-                ? transactionUpdateDto.recurring() : transaction.getRecurring());
+    private void updateAccountBalanceOnAmountChange(Transaction transaction, BigDecimal newAmount) {
+        Account account = getAccountByUserId(transaction.getUserId());
+        BigDecimal currentAmount = transaction.getAmount();
+        BigDecimal updatedBalance = account.getBalance().add(currentAmount).subtract(newAmount);
+        account.setBalance(updatedBalance);
+        accountRepository.save(account);
     }
 }

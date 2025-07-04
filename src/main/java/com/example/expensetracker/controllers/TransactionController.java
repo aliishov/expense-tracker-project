@@ -2,7 +2,6 @@ package com.example.expensetracker.controllers;
 
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionRequestDto;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionResponseDto;
-import com.example.expensetracker.dtos.trasnactionDtos.TransactionUpdateDto;
 import com.example.expensetracker.models.user.User;
 import com.example.expensetracker.services.transaction.TransactionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,10 +53,10 @@ public class TransactionController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{transactionId}")
     public ResponseEntity<TransactionResponseDto> update(@PathVariable Long transactionId,
-                                                         @RequestBody @Valid TransactionUpdateDto transactionUpdateDto,
-                                                         @AuthenticationPrincipal User user) {
+                                                         @RequestBody @Valid TransactionRequestDto transactionRequestDto,
+                                                         @AuthenticationPrincipal User user) throws BadRequestException {
         UUID userId = user.getId();
-        return transactionService.update(transactionId, transactionUpdateDto, userId);
+        return transactionService.update(transactionId, transactionRequestDto, userId);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
