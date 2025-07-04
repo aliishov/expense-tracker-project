@@ -8,6 +8,7 @@ import com.example.expensetracker.services.transaction.TransactionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,7 +46,7 @@ public class TransactionController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<TransactionResponseDto> create(@RequestBody @Valid TransactionRequestDto transactionRequestDto,
-                                                         @AuthenticationPrincipal User user) {
+                                                         @AuthenticationPrincipal User user) throws BadRequestException {
         UUID userId = user.getId();
         return transactionService.create(transactionRequestDto, userId);
     }

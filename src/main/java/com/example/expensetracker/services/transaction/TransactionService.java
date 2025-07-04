@@ -3,16 +3,19 @@ package com.example.expensetracker.services.transaction;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionRequestDto;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionResponseDto;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionUpdateDto;
+import com.example.expensetracker.models.balance.Account;
 import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.enums.Currency;
 import com.example.expensetracker.models.transaction.Transaction;
 import com.example.expensetracker.models.enums.Type;
+import com.example.expensetracker.repositories.AccountRepository;
 import com.example.expensetracker.repositories.CategoryRepository;
 import com.example.expensetracker.repositories.TransactionRepository;
 import com.example.expensetracker.utils.SecurityUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -30,6 +33,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final TransactionConverter transactionConverter;
     private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
 
     private final static Marker MY_LOG_MARKER = MarkerFactory.getMarker("MY_LOGGER");
     private final static Logger LOGGER = LoggerFactory.getLogger("MY_LOGGER");
@@ -63,11 +67,26 @@ public class TransactionService {
         return ResponseEntity.ok(transactionResponseDto);
     }
 
-    public ResponseEntity<TransactionResponseDto> create(@Valid TransactionRequestDto transactionRequestDto, UUID userId) {
+    public ResponseEntity<TransactionResponseDto> create(@Valid TransactionRequestDto transactionRequestDto, UUID userId) throws BadRequestException {
         LOGGER.info(MY_LOG_MARKER, "Creating new transaction");
 
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    LOGGER.error(MY_LOG_MARKER, "Account not found");
+                    return new EntityNotFoundException("Account not found");
+                });
+
+        if (account.getBalance().compareTo(transactionRequestDto.amount()) < 0) {
+            LOGGER.error(MY_LOG_MARKER, "Balance not enough");
+            throw new BadRequestException("Balance not enough");
+        }
+
         Transaction newTransaction = transactionConverter.convertToDomainTransaction(transactionRequestDto, userId);
+
+        account.setBalance(account.getBalance().subtract(newTransaction.getAmount()));
+
         transactionRepository.save(newTransaction);
+        accountRepository.save(account);
 
         TransactionResponseDto transactionResponseDto = transactionConverter.convertToTransactionResponse(newTransaction);
 

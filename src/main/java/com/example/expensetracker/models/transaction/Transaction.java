@@ -69,6 +69,13 @@ public class Transaction {
     @Column(name = "recurring", nullable = false)
     private Boolean recurring;
 
+    @Column(name = "recurring_type")
+    @Enumerated(EnumType.STRING)
+    private RecurringType recurringType;
+
+    @Column(name = "next_execution")
+    private LocalDateTime nextExecution;
+
     @Column(name = "is_archived", nullable = false)
     private Boolean isArchived;
 }
