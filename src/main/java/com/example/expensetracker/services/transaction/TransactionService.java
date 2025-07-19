@@ -74,15 +74,18 @@ public class TransactionService {
         validateRecurringDto(transactionRequestDto);
 
         Account account = getAccountByUserId(userId);
-        if (account.getBalance().compareTo(transactionRequestDto.amount()) < 0) {
-            LOGGER.error(MY_LOG_MARKER, "Insufficient balance for user {}. Required: {}, Available: {}",
-                    userId, transactionRequestDto.amount(), account.getBalance());
-            throw new BadRequestException("Balance not enough");
-        }
-
         Transaction newTransaction = transactionConverter.convertToDomainTransaction(transactionRequestDto, userId);
 
-        account.setBalance(account.getBalance().subtract(newTransaction.getAmount()));
+        if (newTransaction.getType() == Type.INCOME) {
+            account.setBalance(account.getBalance().add(newTransaction.getAmount()));
+        } else {
+            if (account.getBalance().compareTo(transactionRequestDto.amount()) < 0) {
+                LOGGER.error(MY_LOG_MARKER, "Insufficient balance for user {}. Required: {}, Available: {}",
+                        userId, transactionRequestDto.amount(), account.getBalance());
+                throw new BadRequestException("Balance not enough");
+            }
+            account.setBalance(account.getBalance().subtract(newTransaction.getAmount()));
+        }
 
         transactionRepository.save(newTransaction);
         accountRepository.save(account);

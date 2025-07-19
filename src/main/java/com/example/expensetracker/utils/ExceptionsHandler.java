@@ -1,5 +1,6 @@
 package com.example.expensetracker.utils;
 
+import com.example.expensetracker.utils.exceptions.NoContentException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -33,8 +34,14 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGlobalException(Exception e) {
+    public ResponseEntity<String> handle(Exception e) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity<String> handle(NoContentException e) {
+        return ResponseEntity.status(NO_CONTENT)
                 .body(e.getMessage());
     }
 }
