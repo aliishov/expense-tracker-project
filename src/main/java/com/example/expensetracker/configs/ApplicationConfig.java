@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -43,5 +44,23 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CommonsRequestLoggingFilter requestLoggingFilter() {
+        CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
+
+        loggingFilter.setIncludeQueryString(true);
+        loggingFilter.setIncludePayload(true);
+        loggingFilter.setIncludeHeaders(false);
+        loggingFilter.setIncludeClientInfo(true);
+
+        loggingFilter.setBeforeMessagePrefix("");
+        loggingFilter.setBeforeMessageSuffix("");
+
+        loggingFilter.setAfterMessagePrefix("");
+        loggingFilter.setAfterMessageSuffix("");
+
+        return loggingFilter;
     }
 }
