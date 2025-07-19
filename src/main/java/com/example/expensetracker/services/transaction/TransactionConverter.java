@@ -4,6 +4,7 @@ import com.example.expensetracker.dtos.trasnactionDtos.TransactionRequestDto;
 import com.example.expensetracker.dtos.trasnactionDtos.TransactionResponseDto;
 import com.example.expensetracker.models.transaction.Category;
 import com.example.expensetracker.models.enums.Currency;
+import com.example.expensetracker.models.transaction.RecurringType;
 import com.example.expensetracker.models.transaction.Transaction;
 import com.example.expensetracker.models.enums.Type;
 import com.example.expensetracker.repositories.CategoryRepository;
@@ -38,6 +39,7 @@ public class TransactionConverter {
                 .deletedAt(null)
                 .currency(Currency.valueOf(transactionRequestDto.currency()))
                 .recurring(transactionRequestDto.recurring())
+                .recurringType(RecurringType.valueOf(transactionRequestDto.recurringType()))
                 .isArchived(false)
                 .build();
     }
