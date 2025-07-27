@@ -44,16 +44,18 @@ public class TransactionConverter {
                 .build();
     }
 
-    public TransactionResponseDto convertToTransactionResponse(Transaction newTransaction) {
+    public TransactionResponseDto convertToTransactionResponse(Transaction transaction) {
+        String recurringType = transaction.getRecurringType() != null ? transaction.getRecurringType().name() : "null";
         return new TransactionResponseDto(
-                newTransaction.getTitle(),
-                newTransaction.getDescription(),
-                newTransaction.getAmount(),
-                newTransaction.getOperationDate(),
-                newTransaction.getCategory().getName(),
-                newTransaction.getType().name(),
-                newTransaction.getCurrency().name(),
-                newTransaction.getRecurring()
+                transaction.getTitle(),
+                transaction.getDescription(),
+                transaction.getAmount(),
+                transaction.getOperationDate(),
+                transaction.getCategory().getName(),
+                transaction.getType().name(),
+                transaction.getCurrency().name(),
+                transaction.getRecurring(),
+                recurringType
         );
     }
 }

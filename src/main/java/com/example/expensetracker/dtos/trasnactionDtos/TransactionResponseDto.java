@@ -11,6 +11,7 @@ public record TransactionResponseDto(
         String category,
         String type,
         String currency,
-        Boolean recurring
+        Boolean recurring,
+        String recurringType
 ) {
 }
